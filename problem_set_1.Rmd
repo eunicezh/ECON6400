@@ -1,0 +1,234 @@
+---
+title: "Problem_set_1"
+output:
+  pdf_document: default
+  html_document: default
+date: "2022-09-18"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+# Empirical Project 7 Working in R
+
+## Part 7.1 Drawing supply and demand diagrams
+
+#1 To make charts that look like those in Figure 1 in the paper, you need to convert the relevant variables to their actual values. Follow R walk-through 7.1 to answer the following questions.
+
+(a) Create two new variables containing the actual values of *P* and *Q*.
+
+(b) Plot separate line charts for *P* and *Q*, with time (in years) on the horizontal axis. Make sure to label your vertical axes appropriately. Your charts should look the same as Figure 1 in the paper.
+
+### R walk-through 7.1 Importing data into R and creating tables and charts
+
+First we import the data with the `read_excel` function, using the `na = "NA"` option to indicate how missing data is recorded.
+
+```{r}
+library(tidyverse)
+```
+
+```{r}
+library(readxl)
+
+# Set working directory
+getwd()
+
+setwd("/Users/euni99/Desktop/micro_econ/welfare/ps_1")
+
+wm_data <- read_excel("Project_7_datafile.xlsx", 
+  sheet = "Sheet1", na = "NA")
+
+str(wm_data)
+```
+
+Let's use the `exp` function to create the variables `p` and `q` from their log counterparts (renamed as `log.p` and `log.q` respectively). We also transform the harvest variable (renamed as `log.h`) and save it as `h`. The harvest will be at most as large as the crop (`q`).
+
+```{r}
+names(wm_data) <- c("Year", "log.q", "log.h", "log.p", 
+  "log.pc", "log.pv", "log.w", "log.n", "log.yn", "log.pf")
+wm_data$p <- exp(wm_data$log.p)  # Price
+wm_data$h <- exp(wm_data$log.h)  # Harvest quantity
+wm_data$q <- exp(wm_data$log.q)  # Crop quantity
+```
+
+Let's use `plot` to produce the chart for the prices, with `Year` as the horizontal axis variable (`xlab`) and price (`p`) as the vertical axis variable (`ylab`).
+
+```{r}
+# type: "p" = points, "l" = lines, "o" = points and lines
+plot(wm_data$Year, wm_data$p, type = "o",
+  xlab = "Year", ylab = "Price")  
+```
+
+Now we create the line chart for harvest and crop quantities (the variables `h` and `q`, respectively). First, we plot the crop quantities as a dashed line (`lty = "dashed"`), then use `lines` to add a solid line for the harvest data. The `legend` function adds a chart legend at the specified coordinates (the first two arguments in the function).
+
+```{r}
+# type: "p" = points, "l" = lines, "o" = points and lines
+plot(wm_data$Year, wm_data$q, type = "o",
+  pch = 1, lty = "dashed", 
+  xlab = "Year", ylab = "Quantity")  
+
+# Add the harvest data
+lines(wm_data$Year, wm_data$h, type = "o", pch = 16)
+
+# Add a legend
+legend(1947.5, 55, legend = c("Crop", "Harvest"),
+  col = c("black", "black"), pch = c(1, 16), 
+  lty = c("dashed", "solid"), cex = 0.8)
+```
+
+Now we will plot supply and demand curves for a simplified version of the model given in the paper. We will define Q as the quantity of watermelons, in millions, and P as the price per thousand watermelons, and assume that the supply curve is given by the following equation:
+
+$log𝑃=−2.0+1.7 log𝑄$ (Supply curve)
+
+Using the same notation, the following equation describes the demand curve:
+
+$log𝑃=8.5−0.82 log𝑄$ (Demand curve)
+
+To plot a curve, we need to generate a series of points (vertical axis values that correspond to particular horizontal axis values) and join them up. First we will work with the variables in natural log format, and then we will convert them to the actual prices and quantities so that our supply and demand curves will be in familiar units.
+
+#2 Plot supply and demand curves:
+
+(a) Create a table as shown in Figure 7.4. The first column contains values of Q from 20 to 100, in intervals of 5. (Remember that quantity is measured in millions, so Q = 20 corresponds to 20 million watermelons.) (b)Convert the values of Q to natural log format (second column of your table) and use these values, along with the numbers in the equations above, to calculate the corresponding values of log P for supply (third column) and demand (fourth column).
+(b) Convert the log P numbers into the actual prices (fifth and sixth columns).
+
+```{r}
+# generate a sequence for quantity Q
+Q <- seq(20,100,5)
+
+# generate log form for quantity Q
+log_Q <- log(Q)
+
+# Supply curve using Log_Q value
+supply_logp <- 1.7*log_Q-2.0
+
+# demand curve  using Log_Q value
+demand_logp <- 8.5-0.82*log_Q
+
+# Supply price
+supply_p <- exp(supply_logp) 
+
+# demand price
+demand_p <- exp(demand_logp)
+
+# create a table 
+wm_table <- data.frame('Q'=Q,'Log Q'=log_Q, 'Supply(log P)'=supply_logp, 'Demand(log P)'=demand_logp, 'Supply(P)'=supply_p, 'Demand(P)'=demand_p)
+wm_table
+
+
+```
+
+(d) Plot your calculated supply and demand curves on a line chart, with price (P) on the vertical axis and quantity (Q) on the horizontal axis. Make sure to label your curves (for example, using a legend).
+
+```{r}
+# plot the supply curve
+graph1 <- plot(Q, supply_p,
+  pch = 16, col = "red",type = "l",
+  xlab = "Quantity", ylab = "Price")  
+
+
+# plot the demand curve
+lines(Q, demand_p, type = "l", col = "blue", pch = 16)
+
+legend(20, 265, legend = c("Supply", "Demand"),
+  col = c("red", "blue"), pch = c(16, 16), title = "Line types", cex = 0.8, text.font = 4)
+
+```
+
+During the time period considered (1930--1951), the market for watermelons experienced a negative supply shock due to the Second World War. Supply was limited because production inputs (land and labour) were being used for the war effort. This shock shifted the entire supply curve because the cause (Second World War) was not part of the supply equation, but was external (also known as being exogenous. Before doing the next question, draw a supply and demand diagram to illustrate what you would expect to happen to price and quantity as a result of the shock (all other things being equal). To see how oil shocks in the 1970s caused by wars in the Middle East shifted the supply curve in the oil market, see Section 7.13 in Economy, Society, and Public Policy.
+
+Now we will use equations to show the effects of a negative supply shock on your chart from Question 2. Suppose that the supply curve after the shock is:
+
+$log𝑃=−2.0+1.7 log𝑄+0.4$
+
+Add the new supply curve to your line chart and interpret the outcomes, as follows:
+
+(a) Create a new column in your table from Question 2 called 'New supply (log P)', showing the supply in terms of log prices after the shock. Make another column called 'New supply (P)' showing the supply in terms of the actual price in dollars.
+
+```{r}
+# calculate the new supply price in log form
+new_supply_logp <- 1.7*log_Q+0.4-2.0
+
+# calculate the new supply price in log form
+new_supply_p <- exp(new_supply_logp)
+
+# add new columns to our table
+wm_table['New supply (log P)'] <- new_supply_logp
+wm_table['New supply (P)'] <-new_supply_p 
+wm_table
+
+```
+
+(b) Add the New supply (P) values to your line chart and verify that your chart looks as expected. Make sure to label the new supply curve.
+
+```{r}
+# add new supply curve
+graph1 <- plot(Q, supply_p,
+  pch = 16, col = "red",type = "l",
+  xlab = "Quantity", ylab = "Price")  
+
+lines(Q, demand_p, type = "l", col = "blue", pch = 16)
+lines(Q, new_supply_p , type = "l", col = "purple", pch = 16)
+
+legend(20, 250, legend = c("Supply", "Demand", "New Supply"),
+  col = c("red", "blue", "purple"), pch = c(16, 16, 16), title = "Line types", cex = 0.8, text.font = 4)
+
+```
+
+(c)From your chart, what can you say about the change in total surplus, consumer surplus, and producer surplus as a result of the supply shock? (Hint: You may find the following information useful: the old equilibrium point is Q = 64.5, P = 161.3; the new equilibrium point is Q = 55.0, P = 183.7).
+
+Due to the supply shock, the supply curve shifts to the left side. This causes negtaive impact on the total surplus. Before the supply shock, the equilibirum price is 161.3, and equilibirum quantity is 64.5.
+
+## Part 7.2 Interpreting supply and demand curves
+
+You may be wondering why it is useful to express relationships in natural log form. In economics, we do this because there is a convenient interpretation of the coefficients: in the equation log Y = a + b log X, the coefficient b represents the elasticity of Y with respect to X. That is, the coefficient is the percentage change in Y for a 1 per cent change in X. To look at the concept of elasticity in more detail, see Section 7.8 of The Economy.
+
+#1 Use the supply and demand equations from Part 7.1 which are shown here, and carry out the following:
+
+(a) Calculate the price elasticity of supply (the percentage change in quantity supplied divided by the percentage change in price) and comment on its size (in absolute value). (Hint: You will have to rearrange the equation so that log Q is in terms of log P.)
+
+```{r}
+# rearrange the supply curve equation
+re_supply_logq <- (supply_logp+2.0)/1.7
+
+# calculate the price elasticity of supply
+e_supply <- round(1/1.7, digits=4)
+e_supply 
+```
+
+Answer: the size of the price elasticity of supply is about `r e_supply`, which is smaller than 1 and we could say that the price elasticity of supply is inelastic. When the quantity supplied increase by 1%, the price would go up by roughly 0.59%.
+
+(b) Calculate the price elasticity of demand in the same way and comment on its size (in absolute value).
+
+```{r}
+# rearrange the demand curve equation
+re_demand_logq <- (8.5-demand_logp)/0.82
+
+# calculate the price elasticity of demand
+e_demand <- round(-1/0.82, digits = 4)
+e_demand
+```
+
+Answer: the size of the price elasticity of demand is about `r e_demand`, whose absolute value is greater than 1 and we could say that the price elasticity of demand is elastic. When the quantity demanded increase by 1%, the price would decrease by roughly 1.22%.
+
+Now we will use this information to take a closer look at the model of the watermelon market in the paper and interpret the equations.
+
+The paper assumes that in practice farmers decide how many watermelons to grow (supply) based on last season's prices of watermelons and other crops they could grow instead (cotton and vegetables), and the current political conditions that support or limit the amount grown. The reasoning for using last season's prices is that watermelons take time to grow and are also perishable, so farmers cannot wait to see what prices will be in the next season before deciding how many watermelons to plant.
+
+The estimated supply equation for watermelons is shown below (this is equation (1) in the paper):
+
+$log 𝑄_t=2.42+0.58 logP_{t-1}−0.32 log𝐶_{t-1}−0.12 log𝑇_{t-1}+0.07 CP_t−0.36 WW2_t$
+
+Here, C and T are the prices of cotton and vegetables, and CP is a dummy variable that equals 1 if the government cotton-acreage-allotment program was in effect (1934--1951). This program was intended to prevent cotton prices from falling by limiting the supply of cotton, so farmers who reduced their cotton production were given government compensation according to the size of their reduction. WW2 is a dummy variable that equals 1 if the US was involved in the Second World War at the time (1943--1946).
+
+In this model, the dummy variables and the prices of other crops are exogenous factors that affect the decisions of farmers, and hence also affect the endogenous variables P and Q that are determined by the interaction of supply and demand. The supply curve (right-hand panel of Figure 7.3) shows that if the price rose with no change in exogenous factors, then the quantity supplied by farmers would rise, along the supply curve. But if there is an exogenous shock, captured by a dummy variable, it shifts the entire supply curve by changing its intercept (left hand panel). This changes the supply price for any given quantity. (In this specific example of watermelons, the vertical axis variable would be the log price in the previous period, and the horizontal axis variable would be the quantity in the current period).
+
+![Figure 7.5 Supply curve: Dummy variables shift the entire curve (left-hand panel) while changes in endogenous variables move along the curve (right-hand panel).](https://www.core-econ.org/doing-economics/book/images/web/figure-07-03.jpg)
+
+#2 With reference to Figure 7.6, for each variable in the supply equation, give an economic interpretation of the coefficient (for example, explain the effect on the farmers' supply decision) and (where relevant) relate the coefficient to an elasticity.
+
+![Figure 7.6 Supply equation coefficients and 95% confidence intervals.).](/Users/euni99/Desktop/micro_econ/welfare/ps_1/figure7_6.png)
+
+
