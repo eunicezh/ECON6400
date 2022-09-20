@@ -231,4 +231,19 @@ In this model, the dummy variables and the prices of other crops are exogenous f
 
 ![Figure 7.6 Supply equation coefficients and 95% confidence intervals.).](/Users/euni99/Desktop/micro_econ/welfare/ps_1/figure7_6.png)
 
+Answer:
 
+Now we will look at the demand curve (equation (3) in the paper). The paper specifies per capita demand ($X_t$/$N_t$) in terms of price and other variables. ($𝛼_0$) is the demand curve intercept:
+
+$log (𝑋_t/𝑁_t)=𝛼_0−1.13 log(𝑃_t)+1.75 log(𝑌_t/𝑁_t)−0.97 log𝐹_t$
+
+#3 Using the demand equation and Figure 7.7 below, give an economic interpretation of each coefficient and (where relevant) relate the coefficient to an elasticity.
+
+![Figure 7.7 Demand equation coefficients and 95% confidence intervals.](/Users/euni99/Desktop/micro_econ/welfare/ps_1/figure7_7.png)
+Answer: 
+
+Earlier, we mentioned that exogenous supply/demand shocks shift the entire supply/demand curve, whereas endogenous changes (such as changes in price) result in movements along the supply or demand curve. Exogenous shocks that only shift supply or only shift demand come in handy when we try to estimate the shape of the supply and demand curves. Read the information on simultaneity below to understand why exogenous shocks are important for identifying the supply and demand curves.
+
+#4 Given the supply and demand equations in the watermelon model, give two examples of an exogenous demand shock and explain why they are exogenous.
+
+Answer: 
